@@ -113,3 +113,4 @@ uses `INPUT_PULLUP`, so no external resistors are needed.
 
 ## Wi-Fi Layer
 Handles ESP32 Wi-Fi initialization and connection management.
+Wi-Fi reconnection handling enabled.
