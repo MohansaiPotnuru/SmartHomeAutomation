@@ -110,6 +110,7 @@ uses `INPUT_PULLUP`, so no external resistors are needed.
   or a simple subscriber script if you need permanent history for a report.
 - `PZEM_TX_PIN` (GPIO2) is an ESP32 strapping pin. It behaves normally once
   the board has booted, but avoid grounding it externally during power-on.
+
 ## Wi-Fi Layer
 
 Handles ESP32 Wi-Fi initialization and connection management.
@@ -118,3 +119,7 @@ Wi-Fi reconnection handling enabled.
 ## MQTT Layer
 
 Handles MQTT communication between the ESP32 and the IoT platform.
+
+## Sensor Layer
+
+Handles sensor data acquisition and processing on the ESP32.
