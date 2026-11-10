@@ -6,7 +6,7 @@
 //   pins.h / config.h / secrets.h  - configuration
 //   relay      - actuator control (lights, fans, door, pump)
 //   alarm      - buzzer + edge-triggered alarm state machine
-//   wifi       - non-blocking WiFi connection manager
+//   wifi_mgr   - non-blocking WiFi connection manager
 //   mqtt       - non-blocking MQTT connection + command dispatch
 //   rfid       - multi-card RFID access control (NVS-backed)
 //   sensor     - BME280 + BH1750 + MQ2 + MQ5 + water + PIR
@@ -23,12 +23,13 @@
 // ==================================================================
 
 #include <esp_task_wdt.h>
+#include <esp_arduino_version.h>
 #include "config.h"
 #include "pins.h"
 
 #include "relay.h"
 #include "alarm.h"
-#include "wifi.h"
+#include "wifi_mgr.h"
 #include "mqtt.h"
 #include "rfid.h"
 #include "sensor.h"
@@ -47,7 +48,17 @@ void setup() {
   delay(200);
   Serial.println("\n[SYSTEM] Initializing ESP32 Smart Home Node...");
 
+  // Task watchdog: the API changed in Arduino-ESP32 core 3.x (ESP-IDF 5).
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  esp_task_wdt_config_t wdtConfig = {
+    .timeout_ms = WDT_TIMEOUT_SEC * 1000,
+    .idle_core_mask = 0,
+    .trigger_panic = true,
+  };
+  esp_task_wdt_reconfigure(&wdtConfig);
+#else
   esp_task_wdt_init(WDT_TIMEOUT_SEC, true);
+#endif
   esp_task_wdt_add(NULL);
 
   errors_init();

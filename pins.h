@@ -46,12 +46,20 @@
 #define PZEM_RX_PIN     4    // ESP32 RX2 <- PZEM TX
 #define PZEM_TX_PIN     2    // ESP32 TX2 -> PZEM RX
 
+// RFID uses the default VSPI bus: SCK=18, MISO=19, MOSI=23 (wired, not
+// #defined - SPI.begin() picks them up). Do NOT reuse 18/19/23 elsewhere.
+
 // ==========================================
 // MANUAL PHYSICAL SWITCHES (local override, works without WiFi)
+// Momentary push-buttons between the pin and GND.
+//   GPIO12 / GPIO15 / GPIO0 are boot-strapping pins: fine for buttons to
+//   GND, but don't hold them pressed while the board is powering up.
+//   GPIO39 is input-only with NO internal pull-up: fit a 10k resistor
+//   from GPIO39 to 3V3.
 // ==========================================
-#define SWITCH_LIGHT_1  18
-#define SWITCH_LIGHT_2  19
-#define SWITCH_FAN_1    23
+#define SWITCH_LIGHT_1  12
+#define SWITCH_LIGHT_2  39   // needs external 10k pull-up to 3V3
+#define SWITCH_FAN_1    0    // also the on-board BOOT button on most dev kits
 #define SWITCH_DOOR     15
 
 #endif // PINS_H

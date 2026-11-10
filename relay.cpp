@@ -30,37 +30,37 @@ void relay_init() {
 void relay_setLight1(bool on, bool isAuto) {
   digitalWrite(RELAY_LIGHT_1, on ? RELAY_ON : RELAY_OFF);
   light1AutoOn = isAuto && on;
-  mqtt_publish(TOPIC_LIGHT1, on ? "ON" : "OFF", true);
+  mqtt_publish(TOPIC_LIGHT1_STATE, on ? "ON" : "OFF", true);
 }
 
 void relay_setLight2(bool on, bool isAuto) {
   digitalWrite(RELAY_LIGHT_2, on ? RELAY_ON : RELAY_OFF);
   light2AutoOn = isAuto && on;
-  mqtt_publish(TOPIC_LIGHT2, on ? "ON" : "OFF", true);
+  mqtt_publish(TOPIC_LIGHT2_STATE, on ? "ON" : "OFF", true);
 }
 
 void relay_setFan1(bool on, bool isAuto) {
   digitalWrite(RELAY_FAN_1, on ? RELAY_ON : RELAY_OFF);
   fan1AutoOn = isAuto && on;
-  mqtt_publish(TOPIC_FAN1, on ? "ON" : "OFF", true);
+  mqtt_publish(TOPIC_FAN1_STATE, on ? "ON" : "OFF", true);
 }
 
 void relay_setFan2(bool on, bool isAuto) {
   digitalWrite(RELAY_FAN_2, on ? RELAY_ON : RELAY_OFF);
-  mqtt_publish(TOPIC_FAN2, on ? "ON" : "OFF", true);
+  mqtt_publish(TOPIC_FAN2_STATE, on ? "ON" : "OFF", true);
 }
 
 void relay_setPump(bool on, bool isAuto) {
   digitalWrite(RELAY_PUMP, on ? RELAY_ON : RELAY_OFF);
   pumpAutoOn = isAuto && on;
-  mqtt_publish(TOPIC_PUMP, on ? "ON" : "OFF", true);
+  mqtt_publish(TOPIC_PUMP_STATE, on ? "ON" : "OFF", true);
 }
 
 void relay_setDoorLock(bool unlock) {
   digitalWrite(RELAY_DOOR_LOCK, unlock ? RELAY_ON : RELAY_OFF);
   doorUnlocked = unlock;
   if (unlock) doorUnlockStart = millis();
-  mqtt_publish(TOPIC_DOOR, unlock ? "UNLOCKED" : "LOCKED", true);
+  mqtt_publish(TOPIC_DOOR_STATE, unlock ? "UNLOCKED" : "LOCKED", true);
 }
 
 bool relay_isDoorUnlocked() { return doorUnlocked; }

@@ -98,7 +98,7 @@ void sensor_evaluateSafety() {
   }
 #endif
 
-  if (sensorData.waterRaw > WATER_FULL_THRESH) {
+  if (sensorData.waterRaw > WATER_OVERFLOW_THRESH) {
     alarm_trigger("WARNING: Water overflow detected!", "WATER", &waterAlarmActive);
   } else {
     alarm_clear("WATER", &waterAlarmActive);

@@ -20,6 +20,7 @@ void security_setArmed(bool armed) {
   prefs.begin("smarthome", false);
   prefs.putBool("armed", systemArmed);
   prefs.end();
+  mqtt_publish(TOPIC_ARM_STATE, systemArmed ? "ON" : "OFF", true);
   mqtt_publish(TOPIC_LOG, systemArmed ? "System ARMED" : "System DISARMED", false);
   Serial.printf("[SECURITY] Armed state: %s\n", systemArmed ? "true" : "false");
 }

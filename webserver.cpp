@@ -16,6 +16,11 @@
 
 static WebServer server(80);
 
+// JSON has no NaN: report missing sensor values as null.
+static String jsonNum(float v, unsigned int decimals) {
+  return isnan(v) ? String("null") : String(v, decimals);
+}
+
 static bool checkAuth() {
   if (!server.authenticate(WEB_ADMIN_USER, WEB_ADMIN_PASS)) {
     server.requestAuthentication();
@@ -113,11 +118,18 @@ static void handleApiStatus() {
   json += "\"armed\":" + String(systemArmed ? "true" : "false") + ",";
   json += "\"alarm\":" + String(alarm_anyActive() ? "true" : "false") + ",";
   json += "\"faults\":\"" + String(errors_getSummary()) + "\",";
-  json += "\"temperature\":" + String(sensorData.temperature, 1) + ",";
-  json += "\"humidity\":" + String(sensorData.humidity, 1) + ",";
-  json += "\"lux\":" + String(sensorData.lux, 0) + ",";
-  json += "\"voltage\":" + String(powerData.voltage, 1) + ",";
-  json += "\"power\":" + String(powerData.power, 1);
+  json += "\"temperature\":" + jsonNum(sensorData.temperature, 1) + ",";
+  json += "\"humidity\":" + jsonNum(sensorData.humidity, 1) + ",";
+  json += "\"pressure\":" + jsonNum(sensorData.pressure, 1) + ",";
+  json += "\"lux\":" + jsonNum(sensorData.lux, 0) + ",";
+  json += "\"smoke\":" + String(sensorData.smokeRaw) + ",";
+  json += "\"gas\":" + String(sensorData.gasRaw) + ",";
+  json += "\"water\":" + String(sensorData.waterRaw) + ",";
+  json += "\"motion\":" + String(sensorData.motion ? "true" : "false") + ",";
+  json += "\"door_unlocked\":" + String(relay_isDoorUnlocked() ? "true" : "false") + ",";
+  json += "\"voltage\":" + jsonNum(powerData.voltage, 1) + ",";
+  json += "\"power\":" + jsonNum(powerData.power, 1) + ",";
+  json += "\"energy_kwh\":" + jsonNum(powerData.energyKwh, 3);
   json += "}";
   server.send(200, "application/json", json);
 }

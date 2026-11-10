@@ -39,7 +39,9 @@ static void handleMessage(char* topic, byte* payload, unsigned int length) {
     if (strcmp(message, "UNLOCK") == 0) rfid_remoteUnlock();
     else if (strcmp(message, "LOCK") == 0) relay_setDoorLock(false);
   } else if (strcmp(topic, TOPIC_ARM) == 0) {
-    security_setArmed(isOn || strcmp(message, "TRUE") == 0);
+    // Only act on explicit values - a typo must never silently disarm.
+    if (isOn || strcmp(message, "TRUE") == 0) security_setArmed(true);
+    else if (strcmp(message, "OFF") == 0 || strcmp(message, "FALSE") == 0) security_setArmed(false);
   }
 }
 
@@ -67,6 +69,7 @@ void mqtt_service() {
       errors_setFlag(ERR_MQTT, false);
       client.publish(TOPIC_STATUS, "online", true);
       client.publish(TOPIC_ERROR, errors_getSummary(), true);
+      client.publish(TOPIC_ARM_STATE, systemArmed ? "ON" : "OFF", true);
 
       client.subscribe(TOPIC_LIGHT1);
       client.subscribe(TOPIC_LIGHT2);

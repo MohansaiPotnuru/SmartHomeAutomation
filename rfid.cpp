@@ -8,6 +8,7 @@
 #include "relay.h"
 #include "alarm.h"
 #include "mqtt.h"
+#include "errors.h"
 
 static MFRC522 rfid(RFID_SS_PIN, RFID_RST_PIN);
 static Preferences prefs;
@@ -25,7 +26,7 @@ static void loadDefaultsIfEmpty() {
   if (!provisioned) {
     Serial.println("[RFID] No stored cards found - loading defaults from secrets.h");
     for (size_t i = 0; i < DEFAULT_CARD_COUNT; i++) {
-      char key[8];
+      char key[16];
       snprintf(key, sizeof(key), "card%d", (int)i);
       String value = String(DEFAULT_CARDS[i].uid) + "|" + String(DEFAULT_CARDS[i].role) + "|" + String(DEFAULT_CARDS[i].label);
       prefs.putString(key, value);
@@ -41,7 +42,7 @@ RfidRole rfid_lookup(const char* uid) {
   int count = prefs.getInt("count", 0);
   RfidRole found = ROLE_NONE;
   for (int i = 0; i < count && i < RFID_MAX_CARDS; i++) {
-    char key[8];
+    char key[16];
     snprintf(key, sizeof(key), "card%d", i);
     String entry = prefs.getString(key, "");
     if (entry.length() == 0) continue;
@@ -63,7 +64,7 @@ bool rfid_addCard(const char* uid, RfidRole role, const char* label) {
   prefs.begin(NVS_NS, false);
   int count = prefs.getInt("count", 0);
   if (count >= RFID_MAX_CARDS) { prefs.end(); return false; }
-  char key[8];
+  char key[16];
   snprintf(key, sizeof(key), "card%d", count);
   String value = String(uid) + "|" + String((int)role) + "|" + String(label);
   prefs.putString(key, value);
@@ -81,7 +82,7 @@ bool rfid_removeCard(const char* uid) {
   String kept[RFID_MAX_CARDS];
   int keptCount = 0;
   for (int i = 0; i < count && i < RFID_MAX_CARDS; i++) {
-    char key[8];
+    char key[16];
     snprintf(key, sizeof(key), "card%d", i);
     String entry = prefs.getString(key, "");
     if (entry.startsWith(String(uid) + "|")) {
@@ -91,7 +92,7 @@ bool rfid_removeCard(const char* uid) {
     kept[keptCount++] = entry;
   }
   for (int i = 0; i < keptCount; i++) {
-    char key[8];
+    char key[16];
     snprintf(key, sizeof(key), "card%d", i);
     prefs.putString(key, kept[i]);
   }
@@ -110,6 +111,14 @@ void rfid_factoryReset() {
 void rfid_init() {
   SPI.begin();
   rfid.PCD_Init();
+
+  // VersionReg reads 0x00 or 0xFF when no MFRC522 answers on the SPI bus.
+  byte version = rfid.PCD_ReadRegister(MFRC522::VersionReg);
+  bool ok = (version != 0x00 && version != 0xFF);
+  if (!ok) Serial.println("[RFID] WARNING: MFRC522 not detected (check SPI wiring).");
+  else Serial.printf("[RFID] MFRC522 firmware version 0x%02X\n", version);
+  errors_setFlag(ERR_RFID, !ok);
+
   loadDefaultsIfEmpty();
 }
 

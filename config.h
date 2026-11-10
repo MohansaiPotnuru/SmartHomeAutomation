@@ -34,7 +34,8 @@
 // ==========================================
 #define SMOKE_THRESHOLD     2000   // MQ2 raw ADC (0-4095)
 #define GAS_THRESHOLD       2000   // MQ5 raw ADC (0-4095)
-#define WATER_FULL_THRESH   1500   // tank/overflow float raw ADC
+#define WATER_FULL_THRESH   1500   // tank full -> pump auto-OFF
+#define WATER_OVERFLOW_THRESH 1800 // well above "full" -> overflow alarm
 #define WATER_EMPTY_THRESH  300    // below this = tank considered empty -> pump ON
 
 #define FAN_ON_TEMP         35.0f
@@ -59,7 +60,8 @@
 // ==========================================
 // MQTT TOPICS
 // ==========================================
-// Actuators (subscribed)
+// Actuator commands (subscribed). Payloads: ON / OFF, door: UNLOCK / LOCK,
+// arm: ON / OFF (or TRUE / FALSE).
 #define TOPIC_LIGHT1        "home/light1"
 #define TOPIC_LIGHT2        "home/light2"
 #define TOPIC_FAN1          "home/fan1"
@@ -67,6 +69,16 @@
 #define TOPIC_DOOR          "home/door"
 #define TOPIC_ARM           "home/arm"
 #define TOPIC_PUMP          "home/pump"
+
+// Actuator state (published, retained). Kept on separate topics so the node
+// never receives its own state messages back as commands.
+#define TOPIC_LIGHT1_STATE  "home/light1/state"
+#define TOPIC_LIGHT2_STATE  "home/light2/state"
+#define TOPIC_FAN1_STATE    "home/fan1/state"
+#define TOPIC_FAN2_STATE    "home/fan2/state"
+#define TOPIC_DOOR_STATE    "home/door/state"
+#define TOPIC_ARM_STATE     "home/arm/state"
+#define TOPIC_PUMP_STATE    "home/pump/state"
 
 // Sensors / telemetry (published)
 #define TOPIC_TEMP          "home/env/temperature"
